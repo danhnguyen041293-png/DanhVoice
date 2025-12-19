@@ -60,7 +60,7 @@ export class TTSService {
   async checkSpelling(text: string): Promise<string> {
     const prompt = `You are a professional proofreader. Correct any spelling or grammar mistakes in the text provided below. 
     IMPORTANT: 
-    1. Preserve all markers in parentheses like (happy) or (laughing). DO NOT modify or remove them.
+    1. Preserve all markers in parentheses like (happy), (laughing), or (reverb: high). DO NOT modify or remove them.
     2. Maintain the overall tone and meaning.
     3. Return ONLY the corrected text, no explanations.
 
@@ -105,7 +105,7 @@ export class TTSService {
     const baseStyle = config.stylePrompt || 'Natural';
     const cloneStyle = config.referenceProfile ? `ADOPT VOICE CHARACTERISTICS: ${config.referenceProfile}` : '';
 
-    const promptText = `Voice Actor Persona: Professional & Ultra-Expressive.
+    const promptText = `Voice Actor Persona: Professional & Ultra-Expressive Audio Engineer.
 Tone: ${pitchDesc}, Style: ${baseStyle}.
 ${cloneStyle}
 
@@ -114,9 +114,12 @@ DO NOT speak the literal text inside the parentheses. Use them as instructions:
 
 1. EMOTION: (disdainful), (unhappy), (anxious), (hysterical), (indifferent), (impatient), (guilty), (scornful), (panicked), (furious), (reluctant), (keen), (disapproving), (negative), (denying), (astonished), (serious), (sarcastic), (conciliative), (comforting), (sincere), (sneering), (hesitating), (yielding), (painful), (awkward), (amused).
 2. TONE CONTROL: (in a hurry tone), (shouting), (screaming), (whispering), (soft tone).
-3. AUDIO EFFECTS: (laughing), (chuckling), (sobbing), (crying loudly), (sighing), (panting), (groaning), (crowd laughing), (background laughter), (audience laughing).
+3. PHYSICAL EFFECTS: (laughing), (chuckling), (sobbing), (crying loudly), (sighing), (panting), (groaning), (crowd laughing), (background laughter), (audience laughing).
+4. AUDIO PROCESSING EFFECTS: (reverb), (echo), (distortion). 
+   - These markers can include intensity: (reverb: low), (reverb: high), (echo: subtle), (distortion: heavy).
+   - Apply these audio characteristics to the speech following the marker. Reverb should sound like a room ambience, Echo should sound like delay/reflections, Distortion should sound like radio static or overdrive.
 
-IMPORTANT: When you see (laughing), you should produce the sound of a person laughing, not say the word "laughing".
+IMPORTANT: When you see (laughing), you should produce the sound of a person laughing. When you see (reverb), adjust the acoustic environment of the generated audio.
 
 SCRIPT:
 ${config.text}`;

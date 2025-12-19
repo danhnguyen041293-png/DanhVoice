@@ -35,6 +35,14 @@ const EFFECTS = [
   "groaning", "crowd laughing", "background laughter", "audience laughing"
 ];
 
+const PROCESSING_EFFECTS = [
+  { id: "reverb", label: "Reverb" },
+  { id: "echo", label: "Echo" },
+  { id: "distortion", label: "Distortion" }
+];
+
+const INTENSITIES = ["low", "medium", "high"];
+
 const App: React.FC = () => {
   const [text, setText] = useState('');
   const [selectedVoice, setSelectedVoice] = useState<string>(VoiceName.ZEPHYR);
@@ -50,6 +58,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'emotions' | 'tones' | 'effects'>('emotions');
+  const [selectedIntensity, setSelectedIntensity] = useState<string>("medium");
   
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -57,8 +66,8 @@ const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioFileInputRef = useRef<HTMLInputElement>(null);
 
-  const insertMarker = (tag: string) => {
-    const formattedTag = `(${tag})`;
+  const insertMarker = (tag: string, intensity?: string) => {
+    const formattedTag = intensity ? `(${tag}: ${intensity})` : `(${tag})`;
     if (!textAreaRef.current) return;
     const start = textAreaRef.current.selectionStart;
     const end = textAreaRef.current.selectionEnd;
@@ -332,19 +341,36 @@ const App: React.FC = () => {
             />
 
             <div className="mt-6">
-              <div className="flex gap-4 border-b border-white/5 mb-4">
-                {(['emotions', 'tones', 'effects'] as const).map(tab => (
-                  <button 
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`pb-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-600 hover:text-gray-400'}`}
-                  >
-                    {tab}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between border-b border-white/5 mb-4 pr-2">
+                <div className="flex gap-4">
+                  {(['emotions', 'tones', 'effects'] as const).map(tab => (
+                    <button 
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`pb-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-600 hover:text-gray-400'}`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {activeTab === 'effects' && (
+                  <div className="flex items-center gap-2 bg-white/5 px-2 py-1 rounded-lg mb-2">
+                    <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter">Intensity:</span>
+                    {INTENSITIES.map(level => (
+                      <button 
+                        key={level} 
+                        onClick={() => setSelectedIntensity(level)}
+                        className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase transition-all ${selectedIntensity === level ? 'bg-purple-500 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto custom-scrollbar pr-2">
                 {activeTab === 'emotions' && EMOTIONS.map(e => (
                   <button key={e} onClick={() => insertMarker(e)} className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-white/5 text-gray-400 hover:bg-purple-500/20 hover:text-purple-300 transition-all border border-white/5">
                     {e}
@@ -355,11 +381,30 @@ const App: React.FC = () => {
                     {t}
                   </button>
                 ))}
-                {activeTab === 'effects' && EFFECTS.map(fx => (
-                  <button key={fx} onClick={() => insertMarker(fx)} className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 transition-all border border-pink-500/10">
-                    {fx}
-                  </button>
-                ))}
+                {activeTab === 'effects' && (
+                  <>
+                    <div className="w-full mb-1 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-white/5"></div>
+                      <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Processing Effects</span>
+                      <div className="h-px flex-1 bg-white/5"></div>
+                    </div>
+                    {PROCESSING_EFFECTS.map(fx => (
+                      <button key={fx.id} onClick={() => insertMarker(fx.id, selectedIntensity)} className="px-3 py-1.5 rounded-xl text-[10px] font-black bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all border border-indigo-500/10 shadow-sm shadow-indigo-900/10">
+                        {fx.label} ({selectedIntensity})
+                      </button>
+                    ))}
+                    <div className="w-full mt-2 mb-1 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-white/5"></div>
+                      <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Physical & Ambience</span>
+                      <div className="h-px flex-1 bg-white/5"></div>
+                    </div>
+                    {EFFECTS.map(fx => (
+                      <button key={fx} onClick={() => insertMarker(fx)} className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 transition-all border border-pink-500/10">
+                        {fx}
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
               
               <div className="flex items-center justify-end mt-4">
