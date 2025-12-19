@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     // Thay đổi thành '/' nếu không chạy trong thư mục con
-    base: '/danhvoice/', 
+    base: '/', 
     server: {
       port: 3000,
       host: '0.0.0.0',
